@@ -7,6 +7,7 @@ import Question from "./Question";
 import Next from "./Next";
 import { useEffect, useReducer } from "react";
 import Progress from "./Progress";
+import FinishScreen from "./FInishScreen";
 
 const initialState = {
   questions: [],
@@ -38,6 +39,8 @@ function reducer(state, action) {
       };
     case "nextQuestion":
       return { ...state, index: state.index + 1, answer: null };
+    case "finish":
+      return { ...state, status: "finish" };
     default:
       throw new Error("Unknown error detected");
   }
@@ -82,8 +85,16 @@ export default function App() {
               answer={answer}
               dispatch={dispatch}
             />
-            <Next dispatch={dispatch} answer={answer} />
+            <Next
+              dispatch={dispatch}
+              answer={answer}
+              index={index}
+              numPoints={numQuestions}
+            />
           </>
+        )}
+        {status === "finish" && (
+          <FinishScreen points={points} maxPossiblePoints={maxPossiblePoints} />
         )}
       </Main>
     </div>
