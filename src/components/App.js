@@ -4,7 +4,9 @@ import Loader from "./Loader";
 import Error from "./Error";
 import StartScreen from "./StartScreen";
 import Question from "./Question";
+import Next from "./Next";
 import { useEffect, useReducer } from "react";
+import Progress from "./Progress";
 
 const initialState = {
   questions: [],
@@ -34,6 +36,8 @@ function reducer(state, action) {
             ? state.points + question.points
             : state.points,
       };
+    case "nextQuestion":
+      return { ...state, index: state.index + 1, answer: null };
     default:
       throw new Error("Unknown error detected");
   }
@@ -44,7 +48,10 @@ export default function App() {
     initialState
   );
   const numQuestions = questions.length;
-
+  const maxPossiblePoints = questions.reduce(
+    (prev, curr) => prev + curr.points,
+    0
+  );
   useEffect(function () {
     fetch("http://localhost:8000/questions")
       .then((res) => res.json())
@@ -62,11 +69,21 @@ export default function App() {
           <StartScreen numQuestions={numQuestions} dispatch={dispatch} />
         )}
         {status === "active" && (
-          <Question
-            question={questions[index]}
-            answer={answer}
-            dispatch={dispatch}
-          />
+          <>
+            <Progress
+              index={index}
+              numQuestions={numQuestions}
+              points={points}
+              maxPossiblePoints={maxPossiblePoints}
+              answer={answer}
+            />
+            <Question
+              question={questions[index]}
+              answer={answer}
+              dispatch={dispatch}
+            />
+            <Next dispatch={dispatch} answer={answer} />
+          </>
         )}
       </Main>
     </div>
